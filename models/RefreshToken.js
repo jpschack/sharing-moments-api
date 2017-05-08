@@ -29,23 +29,27 @@ RefreshTokenSchema.statics.create = function(user, callback) {
     var refreshToken = new RefreshToken();
     refreshToken.userid = user._id;
 
-    crypto.randomBytes(48, function(err, buffer) {
-        refreshToken.token = buffer.toString('hex');
+    crypto.randomBytes(48, function(error, buffer) {
+        if (error) {
+            callback(error, null);
+        } else {
+            refreshToken.token = buffer.toString('hex');
 
-        refreshToken.save(function(error) {
-            if (error) {
-                logger.error(error);
-                callback(error, null, null, null);
-            } else {
-                refreshToken.getNewAuthToken(function(error, authToken, expires_at) {
-                    if (error) {
-                        callback(error, null, null, null);
-                    } else {
-                        callback(null, refreshToken, authToken, expires_at);
-                    }
-                });
-            }
-        });
+            refreshToken.save(function(error) {
+                if (error) {
+                    logger.error(error);
+                    callback(error, null, null, null);
+                } else {
+                    refreshToken.getNewAuthToken(function(error, authToken, expires_at) {
+                        if (error) {
+                            callback(error, null, null, null);
+                        } else {
+                            callback(null, refreshToken, authToken, expires_at);
+                        }
+                    });
+                }
+            });
+        }
     });
 }
 

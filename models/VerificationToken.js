@@ -14,17 +14,20 @@ VerificationTokenSchema.statics.create = function(user, callback) {
     var token = new VerificationToken();
     token.userid = user._id;
 
-    crypto.randomBytes(48, function(err, buffer) {
-        token.token = buffer.toString('hex');
+    crypto.randomBytes(48, function(error, buffer) {
+        if (error) {
+            callback(error, null);
+        } else {
+            token.token = buffer.toString('hex');
 
-        token.save(function(error) {
-            if (error) {
-                logger.error(error);
-                callback(error, null);
-            } else {
-                callback(null, token);
-            }
-        });
+            token.save(function(error) {
+                if (error) {
+                    callback(error, null);
+                } else {
+                    callback(null, token);
+                }
+            });
+        }
     });
 }
 

@@ -6,7 +6,7 @@ const bcrypt             = require('bcrypt-nodejs');
 const async              = require('async');
 const VerificationToken  = require('./VerificationToken');
 const PasswordResetToken = require('./PasswordResetToken');
-const RefreshToken          = require('./RefreshToken');
+const RefreshToken       = require('./RefreshToken');
 
 
 let UserSchema = mongoose.Schema({
@@ -26,6 +26,13 @@ let UserSchema = mongoose.Schema({
                             enabled: { type: Boolean, default: true },
                             verified: { type: Boolean, default: false },
                             privateAccount: { type: Boolean, default: false },
+                            profileimage: {
+                                type: {
+                                    s3ObjectId: String,
+                                    url: String,
+                                    created_at: { type: Date, default: Date.now }
+                                }
+                            },
                             updated_at: { type: Date, default: Date.now }
 });
 

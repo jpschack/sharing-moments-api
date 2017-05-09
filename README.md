@@ -11,6 +11,7 @@ MongoDB
 AMQP - for queing messages
 JsonWebToken
 Passport
+AWS S3
 
 
 ## Project Status

@@ -33,6 +33,11 @@ const config = {
         host: '',
         queue: ''
     },
+    aws: {
+        secretAccessKey: '',
+        accessKeyId: '',
+        bucket: ''
+    },
     webhost: ''
 };
 

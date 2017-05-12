@@ -1,9 +1,9 @@
 'use strict';
 
-const logger          = require('../utils/logger');
-const GenericResponse = require('../utils/GenericResponse');
-const ValidationError = require('../utils/responseObjects/ValidationError');
-
+const logger                 = require('../utils/logger');
+const GenericResponse        = require('../utils/GenericResponse');
+const ValidationError        = require('../utils/responseObjects/ValidationError');
+const RequestValidationError = require('../utils/RequestValidationError');
 
 function errorHandler(error, req, res, next) {
     if (error) {
@@ -16,6 +16,8 @@ function errorHandler(error, req, res, next) {
                 errorList.push(new ValidationError(error.errors[key]));
             }
             res.status(403).json(new GenericResponse(false, 'ValidationError', null, errorList));
+        } else if (error.name == 'RequestValidationError') {
+            res.status(403).json(new GenericResponse(false, 'RequestValidationError', null, error.errors));
         } else {
             res.status(500).json(new GenericResponse(false, error.message, null));
         }

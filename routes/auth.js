@@ -1,32 +1,48 @@
 'use strict';
 
-const express              = require('express');
-const router               = express.Router();
-const passport             = require('passport');
-const config               = require('../config/config');
-const passportJwt          = require('../config/passportJwt');
-const logger               = require('../utils/logger');
-const GenericResponse      = require('../utils/GenericResponse');
-const UserAccountService   = require('../services/UserAccountService');
-const LoggedInUserResponse = require('../utils/responseObjects/LoggedInUserResponse');
-const RefreshToken         = require('../models/RefreshToken');
+const express                = require('express');
+const router                 = express.Router();
+const passport               = require('passport');
+const config                 = require('../config/config');
+const passportJwt            = require('../config/passportJwt');
+const validateRequest        = require('../config/validateRequest');
+const logger                 = require('../utils/logger');
+const GenericResponse        = require('../utils/GenericResponse');
+const LoggedInUserResponse   = require('../utils/responseObjects/LoggedInUserResponse');
+const UserAccountService     = require('../services/UserAccountService');
+const RefreshToken           = require('../models/RefreshToken');
 
 
 router.post('/login', function(req, res, next) {
-    if (req.body.email && req.body.password) {
-        let email = req.body.email;
-        let password = req.body.password;
-
-        UserAccountService.login(email, password, function (error, userResponseObject) {
-            if (error) {
-                next(error);
-            } else {
-                res.status(200).json(new GenericResponse(true, null, userResponseObject));
+    const validationSchema = {
+        'email': {
+            isEmail: {
+              errorMessage: 'The given email address is invalid.'
             }
-        });
-    } else {
-        res.status(400).json(new GenericResponse(false, 'False Request', null));
-    }
+        },
+        'password': {
+            notEmpty: true,
+            errorMessage: 'Missing Password'
+        }
+    };
+    req.checkBody(validationSchema);
+
+    validateRequest(req, function (error) {
+        if (error) {
+            next(error);
+        } else {
+            let email = req.body.email;
+            let password = req.body.password;
+
+            UserAccountService.login(email, password, function (error, userResponseObject) {
+                if (error) {
+                    next(error);
+                } else {
+                    res.status(200).json(new GenericResponse(true, null, userResponseObject));
+                }
+            });
+        }
+    });
 });
 
 router.get('/refreshtoken', function(req, res, next) {

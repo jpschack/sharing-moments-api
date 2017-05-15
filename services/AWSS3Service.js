@@ -6,39 +6,39 @@ const crypto = require('crypto');
 const AWSS3  = require('../config/awss3');
 
 
-function AWSS3Service() {}
+class AWSS3Service {
+    static upload(fileBuffer, callback) {
+        crypto.randomBytes(48, (error, buffer) => {
+            if (error) {
+                callback(error, null);
+            } else {
+                const key = buffer.toString('hex');
+                const params = {
+                    Bucket: config.aws.bucket,
+                    Key: key,
+                    Body: fileBuffer
+                };
 
-AWSS3Service.prototype.upload = function(fileBuffer, callback) {
-    crypto.randomBytes(48, function(error, buffer) {
-        if (error) {
-            callback(error, null);
-        } else {
-            let key = buffer.toString('hex');
-            let params = {
-                Bucket: config.aws.bucket,
-                Key: key,
-                Body: fileBuffer
-            };
+                AWSS3.upload(params, (error, data) => {
+                    if (error) {
+                        callback(error, null);
+                    } else {
+                        callback(null, data);
+                    }
+                });
+            }
+        });
+    }
 
-            AWSS3.upload(params, function(error, data) {
-                if (error) {
-                    callback(error, null);
-                } else {
-                    callback(null, data);
-                }
-            });
-        }
-    });
+    static delete(objectKey, callback) {
+        AWSS3.deleteObject({ Bucket: config.aws.bucket, Key: objectKey }, (error, data) => {
+            if (error) {
+                callback(error, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    }
 }
 
-AWSS3Service.prototype.delete = function(objectKey, callback) {
-    AWSS3.deleteObject({ Bucket: config.aws.bucket, Key: objectKey }, function(error, data) {
-        if (error) {
-            callback(error, null);
-        } else {
-            callback(null, data);
-        }
-    });
-}
-
-module.exports = new AWSS3Service();
+module.exports = AWSS3Service;

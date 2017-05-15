@@ -3,6 +3,7 @@
 const bodyParser       = require('body-parser');
 const morgan           = require('morgan');
 const expressValidator = require('express-validator');
+const mongoose         = require('mongoose');
 
 
 function validationErrorFormatter(param, msg, value) {
@@ -14,6 +15,12 @@ function validationErrorFormatter(param, msg, value) {
     };
 }
 
+const customValidators = {
+    isObjectIdValid: function(value) {
+        return mongoose.Types.ObjectId.isValid(value);
+    }
+};
+
 module.exports = function(app, config) {
     app.disable('etag');
 
@@ -23,7 +30,7 @@ module.exports = function(app, config) {
 
     app.use(bodyParser.json());
 
-    app.use(expressValidator({ errorFormatter: validationErrorFormatter }));
+    app.use(expressValidator({ errorFormatter: validationErrorFormatter, customValidators: customValidators }));
 
     app.use(morgan('dev'));
 };

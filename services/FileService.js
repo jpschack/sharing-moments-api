@@ -14,18 +14,17 @@ function fileFilter (req, file, callback) {
     }
 }
 
+class FileService {
+    static singleFileUpload(req, res, fieldname, callback) {
+        const singleFileUpload = fileUpload.single(fieldname);
+        singleFileUpload(req, res, callback);
+    }
 
-function FileService() {}
-
-FileService.prototype.singleFileUpload = function (req, res, fieldname, callback) {
-    const singleFileUpload = fileUpload.single(fieldname);
-    singleFileUpload(req, res, callback);
+    static arrayFileUpload(req, res, fieldname, maxCount, callback) {
+        const arrayFileUpload = fileUpload.array(fieldname, maxCount);
+        arrayFileUpload(req, res, callback);
+    }
 }
 
-FileService.prototype.arrayFileUpload = function (req, res, fieldname, maxCount, callback) {
-    const arrayFileUpload = fileUpload.array(fieldname, maxCount);
-    arrayFileUpload(req, res, callback);
-}
 
-
-module.exports = new FileService();
+module.exports = FileService;

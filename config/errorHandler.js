@@ -15,9 +15,9 @@ function errorHandler(error, req, res, next) {
             for (let key of Object.keys(error.errors)) {
                 errorList.push(new ValidationError(error.errors[key]));
             }
-            res.status(403).json(new GenericResponse(false, 'ValidationError', null, errorList));
+            res.status(400).json(new GenericResponse(false, 'ValidationError', null, errorList));
         } else if (error.name == 'RequestValidationError') {
-            res.status(403).json(new GenericResponse(false, 'RequestValidationError', null, error.errors));
+            res.status(400).json(new GenericResponse(false, 'RequestValidationError', null, error.errors));
         } else {
             res.status(500).json(new GenericResponse(false, error.message, null));
         }

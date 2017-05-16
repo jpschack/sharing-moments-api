@@ -118,7 +118,7 @@ router.put('/:id', passportJwt, (req, res, next) => {
 });
 
 router.get('/:id', passportJwt, (req, res, next) => {
-    req.checkQuery(eventParamValidationSchema);
+    req.checkParams(eventParamValidationSchema);
 
     validateRequest(req, (error) => {
         if (error) {

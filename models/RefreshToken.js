@@ -9,11 +9,13 @@ const SchemaObjectId = mongoose.Schema.Types.ObjectId;
 
 
 let RefreshTokenSchema = mongoose.Schema({ 
-    user: { type: SchemaObjectId, ref: 'User', required: true },
+    user: { type: SchemaObjectId, ref: 'LoggedInUser', required: true },
     token: { type: String, required: true, index: { unique: true } },
     expires_at: { type: Date, default: function() { return +new Date() + config.jwt.refreshtoken.expirationTime } },
     updated_at: { type: Date, default: Date.now }
 });
+
+RefreshTokenSchema.plugin(require('./plugins/toJSONPlugin'));
 
 RefreshTokenSchema.pre('save', function(next) {
     if (this.isTokenValid) {

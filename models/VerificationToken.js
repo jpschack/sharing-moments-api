@@ -6,7 +6,7 @@ const crypto         = require('crypto');
 const SchemaObjectId = mongoose.Schema.Types.ObjectId;
 
 let VerificationTokenSchema = mongoose.Schema({ 
-    user: { type: SchemaObjectId, ref: 'User', required: true },
+    user: { type: SchemaObjectId, ref: 'LoggedInUser', required: true },
     token: { type: String, required: true, index: { unique: true } },
     expires_at: { type: Date, default: function() { return +new Date() + (9*60*60*1000) } }
 });

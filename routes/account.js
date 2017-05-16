@@ -2,18 +2,14 @@
 
 const express              = require('express');
 const router               = express.Router();
-const config               = require('../config/config');
 const passportJwt          = require('../config/passportJwt');
 const validateRequest      = require('../config/validateRequest');
 const GenericResponse      = require('../utils/GenericResponse');
-const UserAccountService   = require('../services/UserAccountService');
-const LoggedInUserResponse = require('../utils/responseObjects/LoggedInUserResponse');
-const logger               = require('../utils/logger');
+const LoggedInUserService   = require('../services/LoggedInUserService');
 
 
 router.get('/', passportJwt, (req, res) => {
-    const userResponseObject = new LoggedInUserResponse(req.user, undefined);
-    res.status(200).json(new GenericResponse(true, null, userResponseObject));
+    res.status(200).json(new GenericResponse(true, null, req.user));
 });
 
 router.put('/', passportJwt, (req, res, next) => {
@@ -49,10 +45,9 @@ router.put('/', passportJwt, (req, res, next) => {
             const name = req.body.name;
             const privacy = req.body.privacy;
 
-            UserAccountService.update(req.user, id, email, username, name, privacy, (error, user) => {
+            LoggedInUserService.update(req.user, id, email, username, name, privacy, (error, user) => {
                 if (!error) {
-                    const userResponseObject = new LoggedInUserResponse(user, undefined);
-                    res.status(200).json(new GenericResponse(true, 'Account updated.', userResponseObject));
+                    res.status(200).json(new GenericResponse(true, 'Account updated.', user));
                 } else {
                     next(error);
                 }
@@ -62,7 +57,7 @@ router.put('/', passportJwt, (req, res, next) => {
 });
 
 router.delete('/', passportJwt, (req, res, next) => {
-    UserAccountService.delete(req.user, (error, success) => {
+    LoggedInUserService.delete(req.user, (error, success) => {
         if (!error) {
             res.status(200).json(new GenericResponse(true, 'Account successful deleted.', null));
         } else {
@@ -91,10 +86,9 @@ router.put('/password', passportJwt, (req, res, next) => {
             const oldpassword = req.body.oldpassword;
             const password = req.body.password;
 
-            UserAccountService.updatePassword(req.user, oldpassword, password, (error, user) => {
+            LoggedInUserService.updatePassword(req.user, oldpassword, password, (error, user) => {
                 if (!error) {
-                    const userResponseObject = new LoggedInUserResponse(user, undefined);
-                    res.status(200).json(new GenericResponse(true, 'Account updated.', userResponseObject));
+                    res.status(200).json(new GenericResponse(true, 'Account updated.', user));
                 } else {
                     next(error);
                 }
@@ -119,10 +113,9 @@ router.put('/privacy', passportJwt, (req, res, next) => {
         } else {
             const privacy = req.body.privacy;
 
-            UserAccountService.updatePrivacy(req.user, privacy, (error, user) => {
+            LoggedInUserService.updatePrivacy(req.user, privacy, (error, user) => {
                 if (!error) {
-                    const userResponseObject = new LoggedInUserResponse(user, undefined);
-                    res.status(200).json(new GenericResponse(true, 'Account updated.', userResponseObject));
+                    res.status(200).json(new GenericResponse(true, 'Account updated.', user));
                 } else {
                     next(error);
                 }

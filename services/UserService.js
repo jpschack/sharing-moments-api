@@ -1,11 +1,10 @@
 'use strict'
 
-const async        = require('async');
-const CostumError  = require('../utils/CostumError');
-const UserResponse = require('../utils/responseObjects/UserResponse');
-const mongoose     = require('mongoose');
-const ObjectId     = mongoose.Types.ObjectId;
-const User         = require('../models/User');
+const async       = require('async');
+const CostumError = require('../utils/CostumError');
+const mongoose    = require('mongoose');
+const ObjectId    = mongoose.Types.ObjectId;
+const User        = require('../models/User');
 
 
 class UserService {
@@ -14,7 +13,7 @@ class UserService {
             if (error) {
                 callback(error, null);
             } else if (user) {
-                callback(null, new UserResponse(user));
+                callback(null, user);
             } else {
                 callback(new CostumError('Not found', 'User not found.', 404), null);
             }
@@ -26,7 +25,7 @@ class UserService {
             if (error) {
                 callback(error, null);
             } else if (user) {
-                callback(null, new UserResponse(user));
+                callback(null, user);
             } else {
                 callback(new CostumError('Not found', 'User not found.', 404), null);
             }
@@ -51,11 +50,7 @@ class UserService {
                     if (error) {
                         callback(error, null, count);
                     } else if (users) {
-                        const userList = [];
-                        for (var i = 0; i < users.length; i++) {
-                            userList.push(new UserResponse(users[i]));
-                        }
-                        next(null, userList, count);
+                        next(null, users, count);
                     } else {
                         next(null, null, count);
                     }

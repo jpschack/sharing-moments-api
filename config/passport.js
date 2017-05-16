@@ -4,7 +4,7 @@ const CostumError         = require('../utils/CostumError');
 const passport            = require('passport');
 const passportJWTStrategy = require('passport-jwt').Strategy;
 const FacebookStrategy    = require('passport-facebook').Strategy;
-const User                = require('../models/User');
+const LoggedInUser         = require('../models/LoggedInUser');
 const mongoose            = require('mongoose');
 const ObjectId            = mongoose.Types.ObjectId;
 const logger              = require('../utils/logger');
@@ -22,7 +22,7 @@ module.exports = function(app, config) {
                     next(new CostumError('Unauthorized', 'Token expired.', 401), false);
                 } else {
                     const userid = ObjectId(jwt_payload.id);
-                    User.findById(userid).select('+password').exec((error, user) => {
+                    LoggedInUser.findById(userid).select('+password').exec((error, user) => {
                         if (error) {
                             next(error, false);
                         } else if (user) {
@@ -50,7 +50,7 @@ module.exports = function(app, config) {
                 if (profile.emails && profile.emails.length > 0 && profile.name && profile.name.givenName) {
                     const id = profile.id;
 
-                    User.find().socialUser(id, 'facebook', (error, user) => {
+                    LoggedInUser.find().socialUser(id, 'facebook', (error, user) => {
                         if (error) {
                             logger.error(error);
                             next(error, null);
@@ -61,7 +61,7 @@ module.exports = function(app, config) {
                             const name = profile.name.givenName + (profile.name.familyName ? (' ' + profile.name.familyName) : '');
                             const socialData = { id: id, accessToken: accessToken, refreshToken: refreshToken };
 
-                            User.createSocialUser(email, socialData, name, (error, user) => {
+                            LoggedInUser.createSocialUser(email, socialData, name, (error, user) => {
                                 if (error) {
                                     logger.error(error);
                                     next(error, null);

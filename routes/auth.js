@@ -8,7 +8,7 @@ const passportJwt        = require('../config/passportJwt');
 const validateRequest    = require('../config/validateRequest');
 const logger             = require('../utils/logger');
 const GenericResponse    = require('../utils/GenericResponse');
-const UserAccountService = require('../services/UserAccountService');
+const LoggedInUserService = require('../services/LoggedInUserService');
 const RefreshToken       = require('../models/RefreshToken');
 
 
@@ -33,11 +33,11 @@ router.post('/login', (req, res, next) => {
             const email = req.body.email;
             const password = req.body.password;
 
-            UserAccountService.login(email, password, (error, userResponseObject) => {
+            LoggedInUserService.login(email, password, (error, user) => {
                 if (error) {
                     next(error);
                 } else {
-                    res.status(200).json(new GenericResponse(true, null, userResponseObject));
+                    res.status(200).json(new GenericResponse(true, null, user));
                 }
             });
         }
@@ -67,11 +67,11 @@ router.get('/refreshtoken', (req, res, next) => {
             const token = req.query.token;
             const userid = req.query.userid;
 
-            UserAccountService.getNewAuthToken(token, userid, (error, authTokenResponse) => {
+            LoggedInUserService.getNewAuthToken(token, userid, (error, updatedTokens) => {
                 if (error) {
                     next(error);
                 } else {
-                    res.status(200).json(new GenericResponse(true, null, authTokenResponse));
+                    res.status(200).json(new GenericResponse(true, null, updatedTokens));
                 }
             });
         }
@@ -104,11 +104,11 @@ router.post('/register', (req, res, next) => {
             const username = req.body.username;
             const password = req.body.password;
 
-            UserAccountService.register(email, username, password, (error, userResponseObject) => {
+            LoggedInUserService.register(email, username, password, (error, user) => {
                 if (error) {
                     next(error);
                 } else {
-                    res.status(200).json(new GenericResponse(true, 'User successful registered', userResponseObject));
+                    res.status(200).json(new GenericResponse(true, 'User successful registered', user));
                 }
             });
         }
@@ -130,11 +130,11 @@ router.post('/verifyAccount', (req, res, next) => {
         } else {
             const vt = req.body.vt;
 
-            UserAccountService.verifyAccount(vt, (error, userResponseObject) => {
+            LoggedInUserService.verifyAccount(vt, (error, user) => {
                 if (error) {
                     next(error);
                 } else {
-                    res.status(200).json(new GenericResponse(true, 'Account verified.', userResponseObject));
+                    res.status(200).json(new GenericResponse(true, 'Account verified.', user));
                 }
             });
         }
@@ -157,7 +157,7 @@ router.post('/resetpassword', (req, res, next) => {
         } else {
             const email = req.body.email;
 
-            UserAccountService.resetPassword(email, (error, success) => {
+            LoggedInUserService.resetPassword(email, (error, success) => {
                 if (error) {
                     next(error);
                 } else {
@@ -188,11 +188,11 @@ router.post('/changepassword', (req, res, next) => {
             const rt = req.body.rt;
             const password = req.body.password;
 
-            UserAccountService.changePassword(rt, password, (error, userResponseObject) => {
+            LoggedInUserService.changePassword(rt, password, (error, user) => {
                 if (error) {
                     next(error);
                 } else {
-                    res.status(200).json(new GenericResponse(true, 'Password changed.', userResponseObject));
+                    res.status(200).json(new GenericResponse(true, 'Password changed.', user));
                 }
             });
         }
@@ -214,7 +214,7 @@ router.post('/logout', passportJwt, (req, res, next) => {
         } else {
             const refreshtoken = req.body.refreshtoken;
 
-            UserAccountService.logout(req.user, refreshtoken, (error, result) => {
+            LoggedInUserService.logout(req.user, refreshtoken, (error, result) => {
                 if (error) {
                     next(error);
                 } else {

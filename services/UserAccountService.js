@@ -57,7 +57,7 @@ UserAccountService.prototype.getNewAuthToken = function(token, userid, callback)
         function(next) {
             RefreshToken.findOne({
                 $and: [
-                    { userid: ObjectId(userid) },
+                    { user: ObjectId(userid) },
                     { token: token }
                 ] }).exec(function(error, refreshToken) {
                     if (error) {
@@ -154,7 +154,7 @@ UserAccountService.prototype.verifyAccount = function(vt, callback) {
             });
         },
         function(token, next) {
-            User.findById(token.userid).exec(function(error, user) {
+            User.findById(token.user).exec(function(error, user) {
                 if (error) {
                     logger.error(error);
                     callback(error, null);
@@ -257,7 +257,7 @@ UserAccountService.prototype.changePassword = function(rt, password, callback) {
             });
         },
         function (token, next) {
-            User.findById(token.userid, function(error, user) {
+            User.findById(token.user, function(error, user) {
                 if (error) {
                     logger.error(error);
                     callback(error, null);
@@ -309,7 +309,7 @@ UserAccountService.prototype.logout = function(user, token, callback) {
         function (next) {
             RefreshToken.findOne({
                 $and: [
-                    { userid: user.id },
+                    { user: user.id },
                     { token: token }
                 ] }).exec(function(error, token) {
                     if (error) {

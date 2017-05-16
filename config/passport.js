@@ -12,17 +12,17 @@ const logger              = require('../utils/logger');
 
 module.exports = function(app, config) {
     passport.use(
-        new passportJWTStrategy(config.jwt.passportJWT, function(jwt_payload, next) {
+        new passportJWTStrategy(config.jwt.passportJWT, (jwt_payload, next) => {
             if (!jwt_payload || !jwt_payload.exp || !jwt_payload.id) {
                 next(new CostumError('Unauthorized', 'Token invalid.', 401), false);
             } else {
-                let exp = jwt_payload.exp;
-                let currentTime = Date.now() / 1000;
+                const exp = jwt_payload.exp;
+                const currentTime = Date.now() / 1000;
                 if (exp < currentTime) {
                     next(new CostumError('Unauthorized', 'Token expired.', 401), false);
                 } else {
-                    let userid = ObjectId(jwt_payload.id);
-                    User.findById(userid).select('+password').exec(function(error, user) {
+                    const userid = ObjectId(jwt_payload.id);
+                    User.findById(userid).select('+password').exec((error, user) => {
                         if (error) {
                             next(error, false);
                         } else if (user) {
@@ -46,22 +46,22 @@ module.exports = function(app, config) {
     passport.use(
         new FacebookStrategy(
             options,
-            function(accessToken, refreshToken, profile, next) {
+            (accessToken, refreshToken, profile, next) => {
                 if (profile.emails && profile.emails.length > 0 && profile.name && profile.name.givenName) {
-                    let id = profile.id;
+                    const id = profile.id;
 
-                    User.find().socialUser(id, 'facebook', function (error, user) {
+                    User.find().socialUser(id, 'facebook', (error, user) => {
                         if (error) {
                             logger.error(error);
                             next(error, null);
                         } else if (user) {
                             next(null, user);
                         } else {
-                            let email = profile.emails[0].value;
-                            let name = profile.name.givenName + (profile.name.familyName ? (' ' + profile.name.familyName) : '');
-                            let socialData = { id: id, accessToken: accessToken, refreshToken: refreshToken };
+                            const email = profile.emails[0].value;
+                            const name = profile.name.givenName + (profile.name.familyName ? (' ' + profile.name.familyName) : '');
+                            const socialData = { id: id, accessToken: accessToken, refreshToken: refreshToken };
 
-                            User.createSocialUser(email, socialData, name, function (error, user) {
+                            User.createSocialUser(email, socialData, name, (error, user) => {
                                 if (error) {
                                     logger.error(error);
                                     next(error, null);

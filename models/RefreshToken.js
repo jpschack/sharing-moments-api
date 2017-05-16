@@ -8,10 +8,11 @@ const crypto         = require('crypto');
 const SchemaObjectId = mongoose.Schema.Types.ObjectId;
 
 
-let RefreshTokenSchema = mongoose.Schema({ userid: { type: SchemaObjectId, ref: 'User', required: true },
-                                        token: { type: String, required: true, index: { unique: true } },
-                                        expires_at: { type: Date, default: function() { return +new Date() + config.jwt.refreshtoken.expirationTime } },
-                                        updated_at: { type: Date, default: Date.now }
+let RefreshTokenSchema = mongoose.Schema({ 
+    user: { type: SchemaObjectId, ref: 'User', required: true },
+    token: { type: String, required: true, index: { unique: true } },
+    expires_at: { type: Date, default: function() { return +new Date() + config.jwt.refreshtoken.expirationTime } },
+    updated_at: { type: Date, default: Date.now }
 });
 
 RefreshTokenSchema.pre('save', function(next) {
@@ -27,7 +28,7 @@ RefreshTokenSchema.pre('save', function(next) {
 
 RefreshTokenSchema.statics.create = function(user, callback) {
     var refreshToken = new RefreshToken();
-    refreshToken.userid = user._id;
+    refreshToken.user = user._id;
 
     crypto.randomBytes(48, function(error, buffer) {
         if (error) {
@@ -77,7 +78,7 @@ RefreshTokenSchema.methods.isTokenValid = function() {
 
 RefreshTokenSchema.methods.getNewAuthToken = function(callback) {
     if (this.isTokenValid) {
-        const payload = { id: this.userid };
+        const payload = { id: this.user };
         jwt.sign(payload, config.jwt.passportJWT.secretOrKey, { expiresIn: config.jwt.authtoken.jwtExpirationTime }, function(error, authToken) {
             if (error) {
                 callback(error, null, null);

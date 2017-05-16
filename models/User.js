@@ -10,30 +10,30 @@ const RefreshToken       = require('./RefreshToken');
 
 
 let UserSchema = mongoose.Schema({
-                            email: { type: String, required: true, index: { unique: true } },
-                            password: { type: String, select: false },
-                            socialData: {
-                                type: {
-                                    id: Number,
-                                    accessToken: String,
-                                    refreshToken: String
-                                },
-                                select: false
-                            },
-                            username: { type: String, index: { unique: true } },
-                            strategy: String,
-                            name: String,
-                            enabled: { type: Boolean, default: true },
-                            verified: { type: Boolean, default: false },
-                            privateAccount: { type: Boolean, default: false },
-                            profileimage: {
-                                type: {
-                                    s3ObjectId: String,
-                                    url: String,
-                                    created_at: { type: Date, default: Date.now }
-                                }
-                            },
-                            updated_at: { type: Date, default: Date.now }
+    email: { type: String, required: true, index: { unique: true } },
+    password: { type: String, select: false },
+    socialData: {
+        type: {
+            id: Number,
+            accessToken: String,
+            refreshToken: String
+        },
+        select: false
+    },
+    username: { type: String, index: { unique: true } },
+    strategy: String,
+    name: String,
+    enabled: { type: Boolean, default: true },
+    verified: { type: Boolean, default: false },
+    privateAccount: { type: Boolean, default: false },
+    profileimage: {
+        type: {
+            s3ObjectId: String,
+            url: String,
+            created_at: { type: Date, default: Date.now }
+        }
+    },
+    updated_at: { type: Date, default: Date.now }
 });
 
 UserSchema.path('email').validate({
@@ -81,7 +81,7 @@ UserSchema.pre('remove', function(callback) {
     let user = this;
     async.waterfall([
         function (next) {
-            VerificationToken.find({ userid: user.id }).exec(function(error, tokens) {
+            VerificationToken.find({ user: user.id }).exec(function(error, tokens) {
                 if (error) {
                     logger.error(error);
                     callback(error);
@@ -102,7 +102,7 @@ UserSchema.pre('remove', function(callback) {
             });
         },
         function (next) {
-            PasswordResetToken.find({ userid: user.id }).exec(function(error, tokens) {
+            PasswordResetToken.find({ user: user.id }).exec(function(error, tokens) {
                 if (error) {
                     logger.error(error);
                     callback(error);
@@ -123,7 +123,7 @@ UserSchema.pre('remove', function(callback) {
             });
         },
         function (next) {
-            RefreshToken.find({ userid: user.id }).exec(function(error, tokens) {
+            RefreshToken.find({ user: user.id }).exec(function(error, tokens) {
                 if (error) {
                     logger.error(error);
                     callback(error);

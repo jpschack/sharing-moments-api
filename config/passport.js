@@ -4,13 +4,14 @@ const CostumError         = require('../utils/CostumError');
 const passport            = require('passport');
 const passportJWTStrategy = require('passport-jwt').Strategy;
 const FacebookStrategy    = require('passport-facebook').Strategy;
-const LoggedInUser         = require('../models/LoggedInUser');
+const LoggedInUser        = require('../models/LoggedInUser');
 const mongoose            = require('mongoose');
 const ObjectId            = mongoose.Types.ObjectId;
 const logger              = require('../utils/logger');
+const config              = require('./config');
 
 
-module.exports = function(app, config) {
+module.exports = (app) => {
     passport.use(
         new passportJWTStrategy(config.jwt.passportJWT, (jwt_payload, next) => {
             if (!jwt_payload || !jwt_payload.exp || !jwt_payload.id) {

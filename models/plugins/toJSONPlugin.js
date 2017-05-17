@@ -1,6 +1,6 @@
 function toJSONPlugin(schema, options) {
     schema.set('toJSON', {
-        transform: function(doc, ret, options) {
+        transform: (doc, ret, options) => {
             ret.id = ret._id;
             ret.created_at = ret._id.getTimestamp();
             delete ret._id;

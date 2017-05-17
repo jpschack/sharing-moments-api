@@ -6,16 +6,16 @@ const logger  = require("./utils/logger");
 
 require('./config/db')(config);
 
-let app = express();
+const app = express();
 
-require('./config/passport')(app, config);
+require('./config/passport')(app);
 
-require('./config/express')(app, config);
+require('./config/express')(app);
 
 require("./config/routes")(app);
 
 require("./config/errorHandler")(app);
 
-app.listen(config.port, function() {
+app.listen(config.port, () => {
     logger.info("Express running");
 });

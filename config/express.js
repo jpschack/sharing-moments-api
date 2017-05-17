@@ -16,12 +16,12 @@ function validationErrorFormatter(param, msg, value) {
 }
 
 const customValidators = {
-    isObjectIdValid: function(value) {
+    isObjectIdValid: (value) => {
         return mongoose.Types.ObjectId.isValid(value);
     }
 };
 
-module.exports = function(app, config) {
+module.exports = (app) => {
     app.disable('etag');
 
     app.use(bodyParser.urlencoded({

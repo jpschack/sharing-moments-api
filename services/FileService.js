@@ -6,7 +6,7 @@ const fileUpload  = multer({ storage: storage, limits: { fileSize: 52428800 }, f
 const CostumError = require('../utils/CostumError');
 
 
-function fileFilter (req, file, callback) {
+function fileFilter(req, file, callback) {
     if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
         callback(new CostumError('BAD_REQUEST', 'Only images are allowed.', 400));
     } else {

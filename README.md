@@ -5,9 +5,9 @@ Example of a stateless nodejs / express REST API for user authentication and res
 
 
 ## Technologies used
-* node.js
+* node.js (with ES6)
 * express.js
-* MongoDB
+* MongoDB (mongoose.js)
 * AMQP - for queing messages
 * JsonWebToken
 * Passport

@@ -10,6 +10,8 @@ class GenericResponse {
 
         if (totalCount) {
             this.totalCount = totalCount;
+        } else if (Array.isArray(data)) {
+            this.totalCount = data.length;
         } else if (data) {
             this.totalCount = 1;
         } else {

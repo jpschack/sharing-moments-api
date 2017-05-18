@@ -6,6 +6,7 @@ const async              = require('async');
 const VerificationToken  = require('./VerificationToken');
 const PasswordResetToken = require('./PasswordResetToken');
 const RefreshToken       = require('./RefreshToken');
+const Event              = require('./Event');
 
 
 const LoggedInUserSchema = mongoose.Schema({
@@ -101,22 +102,29 @@ LoggedInUserSchema.pre('save', function(next) {
 });
 
 LoggedInUserSchema.pre('remove', function(callback) {
+    //to add: delete photos of user
     const user = this;
-    async.waterfall([
+    async.parallel([
         (next) => {
             VerificationToken.find({ user: user.id }).exec((error, tokens) => {
                 if (error) {
                     callback(error);
                 } else if (tokens && tokens.length > 0) {
-                    for (let i = 0; i < tokens.length; i++) {
-                        const token = tokens[i];
+                    async.each(tokens, (token, nextToken) => {
                         token.remove((error) => {
                             if (error) {
-                                callback(error);
+                                nextToken(error);
+                            } else {
+                                nextToken();
                             }
                         });
-                    }
-                    next();
+                    }, (error) => {
+                        if (error) {
+                            callback(error);
+                        } else {
+                            next();
+                        }
+                    });
                 } else {
                     next();
                 }
@@ -127,15 +135,21 @@ LoggedInUserSchema.pre('remove', function(callback) {
                 if (error) {
                     callback(error);
                 } else if (tokens && tokens.length > 0) {
-                    for (let i = 0; i < tokens.length; i++) {
-                        const token = tokens[i];
+                    async.each(tokens, (token, nextToken) => {
                         token.remove((error) => {
                             if (error) {
-                                callback(error);
+                                nextToken(error);
+                            } else {
+                                nextToken();
                             }
                         });
-                    }
-                    next();
+                    }, (error) => {
+                        if (error) {
+                            callback(error);
+                        } else {
+                            next();
+                        }
+                    });
                 } else {
                     next();
                 }
@@ -146,15 +160,46 @@ LoggedInUserSchema.pre('remove', function(callback) {
                 if (error) {
                     callback(error);
                 } else if (tokens && tokens.length > 0) {
-                    for (let i = 0; i < tokens.length; i++) {
-                        const token = tokens[i];
+                    async.each(tokens, (token, nextToken) => {
                         token.remove((error) => {
                             if (error) {
-                                callback(error);
+                                nextToken(error);
+                            } else {
+                                nextToken();
                             }
                         });
-                    }
+                    }, (error) => {
+                        if (error) {
+                            callback(error);
+                        } else {
+                            next();
+                        }
+                    });
+                } else {
                     next();
+                }
+            });
+        },
+        (next) => {
+            Event.find({ user: user.id }).exec((error, events) => {
+                if (error) {
+                    callback(error);
+                } else if (events && events.length > 0) {
+                    async.each(events, (event, nextEvent) => {
+                        event.remove((error) => {
+                            if (error) {
+                                nextEvent(error);
+                            } else {
+                                nextEvent();
+                            }
+                        });
+                    }, (error) => {
+                        if (error) {
+                            callback(error);
+                        } else {
+                            next();
+                        }
+                    });
                 } else {
                     next();
                 }

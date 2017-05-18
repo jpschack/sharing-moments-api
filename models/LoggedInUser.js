@@ -1,7 +1,6 @@
 'use strict';
 
 const mongoose           = require('mongoose');
-const logger             = require('../utils/logger');
 const bcrypt             = require('bcrypt-nodejs');
 const async              = require('async');
 const VerificationToken  = require('./VerificationToken');
@@ -37,7 +36,7 @@ const LoggedInUserSchema = mongoose.Schema({
 }, {
     toJSON: {
         virtuals: true,
-        transform: function (doc, ret) {
+        transform: (doc, ret) => {
             ret.id = ret._id;
             ret.created_at = ret._id.getTimestamp();
             delete ret.password;
@@ -48,13 +47,13 @@ const LoggedInUserSchema = mongoose.Schema({
     }
 });
 
-LoggedInUserSchema.virtual('authToken').get(function () {
+LoggedInUserSchema.virtual('authToken').get(function() {
     return this.__authToken;
 }).set(function(authToken) {
     this.__authToken = authToken;
 });
 
-LoggedInUserSchema.virtual('refreshToken').get(function () {
+LoggedInUserSchema.virtual('refreshToken').get(function() {
     return this.__refreshToken;
 }).set(function(refreshToken) {
     this.__refreshToken = refreshToken;
@@ -62,7 +61,7 @@ LoggedInUserSchema.virtual('refreshToken').get(function () {
 
 LoggedInUserSchema.path('email').validate({
     isAsync: true,
-    validator: function (value, respond) {
+    validator: function(value, respond) {
         const userObject = this;
         LoggedInUser.findOne({ email: value }, (err, user) => {
             if (err) {
@@ -79,7 +78,7 @@ LoggedInUserSchema.path('email').validate({
 
 LoggedInUserSchema.path('username').validate({
     isAsync: true,
-    validator: function (value, respond) {
+    validator: function(value, respond) {
         const userObject = this;
         LoggedInUser.findOne({ username: value }, (err, user) => {
             if (err) {
@@ -94,27 +93,25 @@ LoggedInUserSchema.path('username').validate({
     message: 'User with this username already exists.'
 });
 
-LoggedInUserSchema.pre('save', (next) => {
+LoggedInUserSchema.pre('save', function(next) {
     if (!this.isNew) {
         this.updated_at = new Date();
     }
     next();
 });
 
-LoggedInUserSchema.pre('remove', (callback) => {
+LoggedInUserSchema.pre('remove', function(callback) {
     const user = this;
     async.waterfall([
         (next) => {
             VerificationToken.find({ user: user.id }).exec((error, tokens) => {
                 if (error) {
-                    logger.error(error);
                     callback(error);
                 } else if (tokens && tokens.length > 0) {
-                    for (var i = 0; i < tokens.length; i++) {
+                    for (let i = 0; i < tokens.length; i++) {
                         const token = tokens[i];
                         token.remove((error) => {
                             if (error) {
-                                logger.error(error);
                                 callback(error);
                             }
                         });
@@ -128,14 +125,12 @@ LoggedInUserSchema.pre('remove', (callback) => {
         (next) => {
             PasswordResetToken.find({ user: user.id }).exec((error, tokens) => {
                 if (error) {
-                    logger.error(error);
                     callback(error);
                 } else if (tokens && tokens.length > 0) {
-                    for (var i = 0; i < tokens.length; i++) {
+                    for (let i = 0; i < tokens.length; i++) {
                         const token = tokens[i];
                         token.remove((error) => {
                             if (error) {
-                                logger.error(error);
                                 callback(error);
                             }
                         });
@@ -149,14 +144,12 @@ LoggedInUserSchema.pre('remove', (callback) => {
         (next) => {
             RefreshToken.find({ user: user.id }).exec((error, tokens) => {
                 if (error) {
-                    logger.error(error);
                     callback(error);
                 } else if (tokens && tokens.length > 0) {
-                    for (var i = 0; i < tokens.length; i++) {
+                    for (let i = 0; i < tokens.length; i++) {
                         const token = tokens[i];
                         token.remove((error) => {
                             if (error) {
-                                logger.error(error);
                                 callback(error);
                             }
                         });
@@ -170,7 +163,7 @@ LoggedInUserSchema.pre('remove', (callback) => {
     ], callback);
 });
 
-LoggedInUserSchema.statics.generateHash = function(password) {
+LoggedInUserSchema.statics.generateHash = (password) => {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
 
@@ -178,7 +171,7 @@ LoggedInUserSchema.methods.isPasswordValid = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
 
-LoggedInUserSchema.statics.createSocialUser = function(email, socialData, name, callback) {
+LoggedInUserSchema.statics.createSocialUser = (email, socialData, name, callback) => {
     const user = new LoggedInUser();
     user.email = email;
     user.socialData = socialData;
@@ -195,7 +188,7 @@ LoggedInUserSchema.statics.createSocialUser = function(email, socialData, name, 
     });
 }
 
-LoggedInUserSchema.statics.createLocalUser = function(email, password, username, callback) {
+LoggedInUserSchema.statics.createLocalUser = (email, password, username, callback) => {
     const user = new LoggedInUser();
     user.email = email;
     user.password = LoggedInUser.generateHash(password);
@@ -211,8 +204,8 @@ LoggedInUserSchema.statics.createLocalUser = function(email, password, username,
     });
 }
 
-LoggedInUserSchema.query.socialUser = function(socialId, strategy, callback) {
-    this.find({
+LoggedInUserSchema.query.socialUser = (socialId, strategy, callback) => {
+    LoggedInUser.find({
         $and: [
             { 'socialData.id': socialId },
             { strategy: strategy }
@@ -226,7 +219,6 @@ LoggedInUserSchema.query.socialUser = function(socialId, strategy, callback) {
             }
     });
 }
-
 
 const LoggedInUser = mongoose.model('LoggedInUser', LoggedInUserSchema, 'users');
 

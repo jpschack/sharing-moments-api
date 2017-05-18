@@ -45,9 +45,9 @@ UserSchema.pre('remove', (next) => {
     next(new CostumError('FORBIDDEN', 'Not the necessary permissions to change this user.', 403));
 });
 
-UserSchema.query.search = function(searchString, limit, page, callback) {
+UserSchema.query.search = (searchString, limit, page, callback) => {
     const searchExpression = new RegExp(".*" + searchString.replace(/(\W)/g, "\\$1") + ".*", "i");
-    this.find({
+    User.find({
         $or: [
             { username: searchExpression },
             { name: searchExpression }
@@ -65,9 +65,9 @@ UserSchema.query.search = function(searchString, limit, page, callback) {
     });
 }
 
-UserSchema.query.countSearchResults = function(searchString, callback) {
+UserSchema.query.countSearchResults = (searchString, callback) => {
     const searchExpression = new RegExp(".*" + searchString.replace(/(\W)/g, "\\$1") + ".*", "i");
-    this.find({
+    User.find({
         $or: [
             { username: searchExpression },
             { name: searchExpression }

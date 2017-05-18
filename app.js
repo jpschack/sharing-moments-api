@@ -4,7 +4,7 @@ const express = require("express");
 const config  = require('./config/config');
 const logger  = require("./utils/logger");
 
-require('./config/db')(config);
+require('./config/db');
 
 const app = express();
 

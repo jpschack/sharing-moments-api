@@ -2,16 +2,16 @@
 
 const mongoose       = require('mongoose');
 const config         = require('../config/config');
-const logger         = require('../utils/logger');
 const jwt            = require('jsonwebtoken');
 const crypto         = require('crypto');
 const SchemaObjectId = mongoose.Schema.Types.ObjectId;
+const CostumError    = require('../utils/CostumError');
 
 
-let RefreshTokenSchema = mongoose.Schema({ 
+const RefreshTokenSchema = mongoose.Schema({ 
     user: { type: SchemaObjectId, ref: 'LoggedInUser', required: true },
     token: { type: String, required: true, index: { unique: true } },
-    expires_at: { type: Date, default: function() { return +new Date() + config.jwt.refreshtoken.expirationTime } },
+    expires_at: { type: Date, default: () => { return +new Date() + config.jwt.refreshtoken.expirationTime } },
     updated_at: { type: Date, default: Date.now }
 });
 
@@ -28,22 +28,21 @@ RefreshTokenSchema.pre('save', function(next) {
     }
 });
 
-RefreshTokenSchema.statics.create = function(user, callback) {
-    var refreshToken = new RefreshToken();
+RefreshTokenSchema.statics.create = (user, callback) => {
+    const refreshToken = new RefreshToken();
     refreshToken.user = user._id;
 
-    crypto.randomBytes(48, function(error, buffer) {
+    crypto.randomBytes(48, (error, buffer) => {
         if (error) {
             callback(error, null);
         } else {
             refreshToken.token = buffer.toString('hex');
 
-            refreshToken.save(function(error) {
+            refreshToken.save((error) => {
                 if (error) {
-                    logger.error(error);
                     callback(error, null, null, null);
                 } else {
-                    refreshToken.getNewAuthToken(function(error, authToken, expires_at) {
+                    refreshToken.getNewAuthToken((error, authToken, expires_at) => {
                         if (error) {
                             callback(error, null, null, null);
                         } else {
@@ -57,9 +56,9 @@ RefreshTokenSchema.statics.create = function(user, callback) {
 }
 
 RefreshTokenSchema.methods.updateExpiration = function(callback) {
-    let token = this;
+    const token = this;
     token.expires_at = +new Date() + config.jwt.refreshtoken.expirationTime;
-    token.save(function(error) {
+    token.save((error) => {
         if (error) {
             callback(error, null);
         } else {
@@ -81,7 +80,7 @@ RefreshTokenSchema.methods.isTokenValid = function() {
 RefreshTokenSchema.methods.getNewAuthToken = function(callback) {
     if (this.isTokenValid) {
         const payload = { id: this.user };
-        jwt.sign(payload, config.jwt.passportJWT.secretOrKey, { expiresIn: config.jwt.authtoken.jwtExpirationTime }, function(error, authToken) {
+        jwt.sign(payload, config.jwt.passportJWT.secretOrKey, { expiresIn: config.jwt.authtoken.jwtExpirationTime }, (error, authToken) => {
             if (error) {
                 callback(error, null, null);
             } else {
@@ -95,6 +94,6 @@ RefreshTokenSchema.methods.getNewAuthToken = function(callback) {
     }
 }
 
-let RefreshToken = mongoose.model('RefreshToken', RefreshTokenSchema);
+const RefreshToken = mongoose.model('RefreshToken', RefreshTokenSchema);
 
 module.exports = RefreshToken;

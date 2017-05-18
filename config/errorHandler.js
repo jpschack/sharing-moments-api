@@ -11,7 +11,7 @@ function errorHandler(error, req, res, next) {
         if (error.name == 'CostumError') {
             res.status(error.errorCode).json(new GenericResponse(false, error.message, null));
         } else if (error.name == 'ValidationError') {
-            let errorList = [];
+            const errorList = [];
             for (let key of Object.keys(error.errors)) {
                 errorList.push(new ValidationError(error.errors[key]));
             }

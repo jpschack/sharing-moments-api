@@ -9,20 +9,17 @@ const logger = new (winston.Logger)({
             filename: 'logs/info.log',
             level: 'info'
         }),
-        new (winston.transports.Console)({
-            name: 'info-console',
-            level: 'info'
-        }),
         new (winston.transports.File)({
             name: 'error-file',
             filename: 'logs/error.log',
             level: 'error'
-        }),
-        new (winston.transports.Console)({
-            name: 'error-console',
-            level: 'error'
         })
     ]
 });
+
+if (process.env.NODE_ENV !== 'test') {
+    logger.add(winston.transports.Console, { name: 'info-console', level: 'info'});
+    logger.add(winston.transports.Console, { name: 'error-console', level: 'error'});
+}
 
 module.exports = logger;

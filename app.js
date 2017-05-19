@@ -19,3 +19,5 @@ require("./config/errorHandler")(app);
 app.listen(config.port, () => {
     logger.info("Express running");
 });
+
+module.exports = app;

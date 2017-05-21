@@ -117,6 +117,26 @@ router.put('/:id', passportJwt, (req, res, next) => {
     });
 });
 
+router.delete('/:id', passportJwt, (req, res, next) => {
+    req.checkParams(eventParamValidationSchema);
+
+    validateRequest(req, (error) => {
+        if (error) {
+            next(error);
+        } else {
+            const eventid = req.params.id;
+
+            EventService.delete(eventid, req.user, (error, result) => {
+                if (error) {
+                    next(error);
+                } else {
+                    res.status(200).json(new GenericResponse(true, null, null));
+                }
+            });
+        }
+    });
+});
+
 router.get('/:id', passportJwt, (req, res, next) => {
     req.checkParams(eventParamValidationSchema);
 

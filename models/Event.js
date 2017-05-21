@@ -3,6 +3,8 @@
 const mongoose       = require('mongoose');
 const SchemaObjectId = mongoose.Schema.Types.ObjectId;
 const CostumError    = require('../utils/CostumError');
+const Photo          = require('./Photo');
+const async          = require('async');
 
 
 const dateValidation = [
@@ -30,7 +32,7 @@ const EventSchema = mongoose.Schema({
 
 EventSchema.plugin(require('./plugins/toJSONPlugin'));
 
-EventSchema.statics.create = function(user, location, name, description, multiday, startDate, endDate, callback) {
+EventSchema.statics.create = (user, location, name, description, multiday, startDate, endDate, callback) => {
     const event       = new Event();
     event.user        = user._id;
     event.location    = location._id;
@@ -49,10 +51,36 @@ EventSchema.statics.create = function(user, location, name, description, multida
     });
 }
 
-EventSchema.query.search = function(searchString, from, to, limit, page, sort, callback) {
+EventSchema.pre('remove', function(callback) {
+    Photo.find({ event: this._id}).exec((error, photos) => {
+        if (error) {
+            callback(error);
+        } else if (photos && photos.length > 0) {
+            async.each(photos, (photo, next) => {
+                photo.remove((error) => {
+                    if (error) {
+                        next(error);
+                    } else {
+                        next();
+                    }
+                });
+            }, (error) => {
+                if (error) {
+                    callback(error);
+                } else {
+                    callback();
+                }
+            });
+        } else {
+            callback();
+        }
+    });
+});
+
+EventSchema.query.search = (searchString, from, to, limit, page, sort, callback) => {
     const query = getSearchQuery(searchString, from, to);
 
-    this.find(query)
+    Event.find(query)
         .sort({ startDate: sort })
         .limit(limit)
         .skip(page * limit)
@@ -67,10 +95,10 @@ EventSchema.query.search = function(searchString, from, to, limit, page, sort, c
     });
 }
 
-EventSchema.query.countSearchResults = function(searchString, from, to, callback) {
+EventSchema.query.countSearchResults = (searchString, from, to, callback) => {
     const query = getSearchQuery(searchString, from, to);
 
-    this.find(query)
+    Event.find(query)
         .count()
         .exec((error, count) => {
             if (error) {

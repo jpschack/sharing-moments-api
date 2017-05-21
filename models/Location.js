@@ -13,7 +13,7 @@ LocationSchema.plugin(require('./plugins/toJSONPlugin'));
 
 LocationSchema.path('placeid').validate({
     isAsync: true,
-    validator: (value, respond) => {
+    validator: function(value, respond) {
         const locationObject = this;
         Location.findOne({ placeid: value }, (error, location) => {
             if (error) {
@@ -28,14 +28,14 @@ LocationSchema.path('placeid').validate({
     message: 'Location already exists.'
 });
 
-LocationSchema.pre('save', (next) => {
+LocationSchema.pre('save', function(next) {
     if (!this.isNew) {
         this.updated_at = new Date();
     }
     next();
 });
 
-LocationSchema.statics.create = function(user, placeid, callback) {
+LocationSchema.statics.create = (user, placeid, callback) => {
     const location   = new Location();
     location.user    = user._id;
     location.placeid = placeid;
@@ -49,7 +49,7 @@ LocationSchema.statics.create = function(user, placeid, callback) {
     });
 }
 
-LocationSchema.statics.findOrCreate = function(user, placeid, callback) {
+LocationSchema.statics.findOrCreate = (user, placeid, callback) => {
     Location.findOne({ placeid: placeid }, (error, location) => {
         if (error) {
         } else if (location) {

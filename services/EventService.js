@@ -100,6 +100,26 @@ class EventService {
         });
     }
 
+    static delete(id, user, callback) {
+        EventService.findById(id, function(error, event) {
+            if (error) {
+                callback(error, null);
+            } else {
+                if (event.user.equals(user._id)) {
+                    event.remove((error) => {
+                        if (error) {
+                            callback(error, null);
+                        } else {
+                            callback(null, true);
+                        }
+                    });
+                } else {
+                    callback(new CostumError('FORBIDDEN', 'You do not have the permissions to delete this event.', 403), null);
+                }
+            }
+        });
+    }
+
     static search(searchString, from, to, limit, page, sort, callback) {
         async.waterfall([
             (next) => {

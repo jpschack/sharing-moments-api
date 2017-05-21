@@ -4,7 +4,7 @@ const mongoose       = require('mongoose');
 const SchemaObjectId = mongoose.Schema.Types.ObjectId;
 
 
-let PhotoSchema = mongoose.Schema({ 
+const PhotoSchema = mongoose.Schema({ 
     user: { type: SchemaObjectId, ref: 'User', required: true },
     event: { type: SchemaObjectId, ref: 'Event', required: true },
     s3ObjectId: { type: String, required: true },
@@ -13,6 +13,8 @@ let PhotoSchema = mongoose.Schema({
     updated_at: { type: Date, default: Date.now }
 });
 
+PhotoSchema.plugin(require('./plugins/toJSONPlugin'));
+
 PhotoSchema.pre('save', function(next) {
     if (!this.isNew) {
         this.updated_at = new Date();
@@ -20,14 +22,14 @@ PhotoSchema.pre('save', function(next) {
     next();
 });
 
-PhotoSchema.statics.create = function(user, event, s3ObjectId, url, callback) {
-    let photo = new Photo();
-    photo.user = user._id;
-    photo.event = event._id;
+PhotoSchema.statics.create = (user, event, s3ObjectId, url, callback) => {
+    const photo      = new Photo();
+    photo.user       = user._id;
+    photo.event      = event._id;
     photo.s3ObjectId = s3ObjectId;
-    photo.url = url;
+    photo.url        = url;
 
-    photo.save(function(error) {
+    photo.save((error) => {
         if (error) {
             callback(error, null);
         } else {
@@ -36,6 +38,6 @@ PhotoSchema.statics.create = function(user, event, s3ObjectId, url, callback) {
     });
 }
 
-let Photo = mongoose.model('Photo', PhotoSchema);
+const Photo = mongoose.model('Photo', PhotoSchema);
 
 module.exports = Photo;

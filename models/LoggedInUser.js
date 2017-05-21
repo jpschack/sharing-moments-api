@@ -60,39 +60,35 @@ LoggedInUserSchema.virtual('refreshToken').get(function() {
     this.__refreshToken = refreshToken;
 });
 
-LoggedInUserSchema.path('email').validate({
-    isAsync: true,
-    validator: function(value, respond) {
+LoggedInUserSchema.path('email').validate(function(value) {
+    return new Promise((resolve, reject) => {
         const userObject = this;
-        LoggedInUser.findOne({ email: value }, (err, user) => {
-            if (err) {
-                return respond(err);
+        LoggedInUser.findOne({ email: value }, (error, user) => {
+            if (error) {
+                return reject(error);
             } else if (user && !user._id.equals(userObject._id)) {
-                respond(false);
+                resolve(false);
             } else {
-                respond(true);
+                resolve(true);
             }
         });
-    },
-    message: 'User with this email already exists.'
-});
+    });
+}, 'User with this email already exists.', 'duplicate');
 
-LoggedInUserSchema.path('username').validate({
-    isAsync: true,
-    validator: function(value, respond) {
+LoggedInUserSchema.path('username').validate(function(value) {
+    return new Promise((resolve, reject) => {
         const userObject = this;
-        LoggedInUser.findOne({ username: value }, (err, user) => {
-            if (err) {
-                return respond(err);
+        LoggedInUser.findOne({ username: value }, (error, user) => {
+            if (error) {
+                return reject(error);
             } else if (user && !user._id.equals(userObject._id)) {
-                respond(false);
+                resolve(false);
             } else {
-                respond(true);
+                resolve(true);
             }
         });
-    },
-    message: 'User with this username already exists.'
-});
+    });
+}, 'User with this username already exists.', 'duplicate');
 
 LoggedInUserSchema.pre('save', function(next) {
     if (!this.isNew) {

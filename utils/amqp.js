@@ -68,7 +68,7 @@ class AMQP {
                 }
             });
         } else {
-            callback(new CostumError('AMQP Error', 'Can not publish message because of missing connection', 500), null);
+            callback(new CostumError('AMQP_ERROR', 'Can not publish message because of missing connection', 500), null);
         }
     }
 }

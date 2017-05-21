@@ -15,7 +15,7 @@ class UserService {
             } else if (user) {
                 callback(null, user);
             } else {
-                callback(new CostumError('Not found', 'User not found.', 404), null);
+                callback(new CostumError('NOT_FOUND', 'User not found.', 404), null);
             }
         });
     }
@@ -27,7 +27,7 @@ class UserService {
             } else if (user) {
                 callback(null, user);
             } else {
-                callback(new CostumError('Not found', 'User not found.', 404), null);
+                callback(new CostumError('NOT_FOUND', 'User not found.', 404), null);
             }
         });
     }

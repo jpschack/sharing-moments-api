@@ -24,7 +24,7 @@ RefreshTokenSchema.pre('save', function(next) {
         }
         next();
     } else {
-        next(new CostumError('Unauthorized', 'Token expired.', 401));
+        next(new CostumError('UNAUTHORIZED', 'Token expired.', 401));
     }
 });
 
@@ -90,7 +90,7 @@ RefreshTokenSchema.methods.getNewAuthToken = function(callback) {
             }
         });
     } else {
-        callback(new CostumError('Unauthorized', 'Token expired', 401), null, null);
+        callback(new CostumError('UNAUTHORIZED', 'Token expired', 401), null, null);
     }
 }
 

@@ -24,10 +24,10 @@ class LoggedInUserService {
                         if (user.strategy == 'local' && user.isPasswordValid(password)) {
                             next(null, user);
                         } else {
-                            callback(new CostumError('Not found', 'No user with those credentials found.', 401), null);
+                            callback(new CostumError('UNAUTHORIZED', 'No user with those credentials found.', 401), null);
                         }
                     } else {
-                        callback(new CostumError('Not found', 'No user with those credentials found.', 401), null);
+                        callback(new CostumError('UNAUTHORIZED', 'No user with those credentials found.', 401), null);
                     }
                 });
             },
@@ -61,7 +61,7 @@ class LoggedInUserService {
                         } else if (refreshToken) {
                             next(null, refreshToken);
                         } else {
-                            callback(new CostumError('Unauthorized', 'Token is not valid.', 401), null);
+                            callback(new CostumError('UNAUTHORIZED', 'Token is not valid.', 401), null);
                         }
                 });
             },
@@ -137,7 +137,7 @@ class LoggedInUserService {
                     if (error) {
                         callback(error, null);
                     } else if (!token || (token && !token.isTokenValid())) {
-                        callback(new CostumError('Unauthorized', 'Token is not valid.', 401), null);
+                        callback(new CostumError('UNAUTHORIZED', 'Token is not valid.', 401), null);
                     } else {
                         next(null, token);
                     }
@@ -148,7 +148,7 @@ class LoggedInUserService {
                     if (error) {
                         callback(error, null);
                     } else if (!user) {
-                        callback(new CostumError('Not found', 'No User found for that token.', 404), null);
+                        callback(new CostumError('NOT_FOUND', 'No User found for that token.', 404), null);
                     } else {
                         next(null, user, token);
                     }
@@ -197,9 +197,9 @@ class LoggedInUserService {
                     if (error) {
                         callback(error, null);
                     } else if (!user) {
-                        callback(new CostumError('Not Found', 'No User found for email address.', 404), null);
+                        callback(new CostumError('NOT_FOUND', 'No User found for email address.', 404), null);
                     } else if (user.strategy != 'local') {
-                        callback(new CostumError('Forbitten', 'Can not reset password for social users.', 403), null);
+                        callback(new CostumError('FORBIDDEN', 'Can not reset password for social users.', 403), null);
                     } else {
                         next(null, user);
                     }
@@ -233,7 +233,7 @@ class LoggedInUserService {
                     if (error) {
                         callback(error, null);
                     } else if (!token || (token && !token.isTokenValid())) {
-                        callback(new CostumError('Unauthorized', 'Token is not valid.', 401), null);
+                        callback(new CostumError('UNAUTHORIZED', 'Token is not valid.', 401), null);
                     } else {
                         next(null, token);
                     }
@@ -244,7 +244,7 @@ class LoggedInUserService {
                     if (error) {
                         callback(error, null);
                     } else if (!token) {
-                        callback(new CostumError('Not found', 'User not found.', 401), null);
+                        callback(new CostumError('NOT_FOUND', 'User not found.', 404), null);
                     } else {
                         next(null, token, user);
                     }
@@ -297,7 +297,7 @@ class LoggedInUserService {
                         } else if (token) {
                             next(null, token);
                         } else {
-                            callback(new CostumError('Unauthorized', 'Token is not valid.', 401), null);
+                            callback(new CostumError('UNAUTHORIZED', 'Token is not valid.', 401), null);
                         }
                 });
             },
@@ -325,7 +325,7 @@ class LoggedInUserService {
 
     static update(user, id, email, username, name, privacy, callback) {
         if (id != user.id) {
-            callback(new CostumError('Forbitten', 'It is not allowed to change the users id.', 403), null);
+            callback(new CostumError('FORBIDDEN', 'It is not allowed to change the users id.', 403), null);
         } else {
             let userModified = false;
 
@@ -365,7 +365,7 @@ class LoggedInUserService {
 
     static updatePassword(user, oldpassword, password, callback) {
         if (user.strategy != 'local') {
-            callback(new CostumError('Forbitten', 'Can not change the password for a social user.', 403), null);
+            callback(new CostumError('FORBIDDEN', 'Can not change the password for a social user.', 403), null);
         } else {
             if (user.isPasswordValid(oldpassword)) {
                 user.password = LoggedInUser.generateHash(password);
@@ -377,7 +377,7 @@ class LoggedInUserService {
                     }
                 });
             } else {
-                callback(new CostumError('Forbitten', 'The given password does not match the current password.', 403), null);
+                callback(new CostumError('FORBIDDEN', 'The given password does not match the current password.', 403), null);
             }
         }
     }

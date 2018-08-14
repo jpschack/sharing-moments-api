@@ -13,7 +13,12 @@ const config = {
     port: 3000,
     host: '',
     env: env,
-    db: '',
+    db: {
+        url: 'mongodb://',
+        options: {
+            useMongoClient: true
+        }
+    },
     fb: {
         clientID: '',
         clientSecret: '',

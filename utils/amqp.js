@@ -3,7 +3,7 @@
 const amqp        = require('amqplib/callback_api');
 const config      = require('../config/config');
 const logger      = require('../utils/logger');
-const CostumError = require('../utils/CostumError');
+const CustomError = require('../utils/CustomError');
 
 
 class AMQP {
@@ -68,7 +68,7 @@ class AMQP {
                 }
             });
         } else {
-            callback(new CostumError('AMQP_ERROR', 'Can not publish message because of missing connection', 500), null);
+            callback(new CustomError('AMQP_ERROR', 'Can not publish message because of missing connection', 500), null);
         }
     }
 }

@@ -1,7 +1,7 @@
 'use strict';
 
 const mongoose    = require('mongoose');
-const CostumError = require('../utils/CostumError');
+const CustomError = require('../utils/CustomError');
 
 
 const UserSchema = mongoose.Schema({
@@ -34,15 +34,15 @@ const UserSchema = mongoose.Schema({
 UserSchema.plugin(require('./plugins/toJSONPlugin'));
 
 UserSchema.pre('save', (next) => {
-    next(new CostumError('FORBIDDEN', 'Not the necessary permissions to change this user.', 403));
+    next(new CustomError('FORBIDDEN', 'Not the necessary permissions to change this user.', 403));
 });
 
 UserSchema.pre('update', (next) => {
-    next(new CostumError('FORBIDDEN', 'Not the necessary permissions to change this user.', 403));
+    next(new CustomError('FORBIDDEN', 'Not the necessary permissions to change this user.', 403));
 });
 
 UserSchema.pre('remove', (next) => {
-    next(new CostumError('FORBIDDEN', 'Not the necessary permissions to change this user.', 403));
+    next(new CustomError('FORBIDDEN', 'Not the necessary permissions to change this user.', 403));
 });
 
 UserSchema.query.search = (searchString, limit, page, callback) => {

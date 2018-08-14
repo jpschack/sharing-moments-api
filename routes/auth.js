@@ -1,19 +1,18 @@
 'use strict';
 
-const express            = require('express');
-const router             = express.Router();
-const passport           = require('passport');
-const config             = require('../config/config');
-const passportJwt        = require('../config/passportJwt');
-const validateRequest    = require('../config/validateRequest');
-const logger             = require('../utils/logger');
-const GenericResponse    = require('../utils/GenericResponse');
+const express             = require('express');
+const router              = express.Router();
+const passport            = require('passport');
+const config              = require('../config/config');
+const passportJwt         = require('../config/passportJwt');
+const requestValidation   = require('../middleware/requestValidation');
+const logger              = require('../utils/logger');
+const GenericResponse     = require('../utils/GenericResponse');
 const LoggedInUserService = require('../services/LoggedInUserService');
-const RefreshToken       = require('../models/RefreshToken');
+const RefreshToken        = require('../models/RefreshToken');
 
-
-router.post('/login', (req, res, next) => {
-    const validationSchema = {
+const validationSchema = {
+    login: {
         'email': {
             isEmail: {
               errorMessage: 'The given email address is invalid.'
@@ -23,29 +22,8 @@ router.post('/login', (req, res, next) => {
             notEmpty: true,
             errorMessage: 'Missing Password'
         }
-    };
-    req.checkBody(validationSchema);
-
-    validateRequest(req, (error) => {
-        if (error) {
-            next(error);
-        } else {
-            const email = req.body.email;
-            const password = req.body.password;
-
-            LoggedInUserService.login(email, password, (error, user) => {
-                if (error) {
-                    next(error);
-                } else {
-                    res.status(200).json(new GenericResponse(true, null, user));
-                }
-            });
-        }
-    });
-});
-
-router.get('/refreshtoken', (req, res, next) => {
-    const validationSchema = {
+    },
+    refreshToken: {
         'token': {
             notEmpty: true,
             errorMessage: 'Missing RefreshToken'
@@ -57,29 +35,8 @@ router.get('/refreshtoken', (req, res, next) => {
             },
             errorMessage: 'Missing userid'
         }
-    };
-    req.checkQuery(validationSchema);
-
-    validateRequest(req, (error) => {
-        if (error) {
-            next(error);
-        } else {
-            const token = req.query.token;
-            const userid = req.query.userid;
-
-            LoggedInUserService.getNewAuthToken(token, userid, (error, updatedTokens) => {
-                if (error) {
-                    next(error);
-                } else {
-                    res.status(200).json(new GenericResponse(true, null, updatedTokens));
-                }
-            });
-        }
-    });
-});
-
-router.post('/register', (req, res, next) => {
-    const validationSchema = {
+    },
+    register: {
         'email': {
             isEmail: {
               errorMessage: 'The given email address is invalid.'
@@ -93,83 +50,21 @@ router.post('/register', (req, res, next) => {
             notEmpty: true,
             errorMessage: 'Missing Password'
         }
-    };
-    req.checkBody(validationSchema);
-
-    validateRequest(req, (error) => {
-        if (error) {
-            next(error);
-        } else {
-            const email = req.body.email;
-            const username = req.body.username;
-            const password = req.body.password;
-
-            LoggedInUserService.register(email, username, password, (error, user) => {
-                if (error) {
-                    next(error);
-                } else {
-                    res.status(200).json(new GenericResponse(true, 'User successful registered', user));
-                }
-            });
-        }
-    });
-});
-
-router.post('/verifyAccount', (req, res, next) => {
-    const validationSchema = {
+    },
+    verifyAccount: {
         'vt': {
             notEmpty: true,
             errorMessage: 'Missing VerificationToken'
         }
-    };
-    req.checkBody(validationSchema);
-
-    validateRequest(req, (error) => {
-        if (error) {
-            next(error);
-        } else {
-            const vt = req.body.vt;
-
-            LoggedInUserService.verifyAccount(vt, (error, user) => {
-                if (error) {
-                    next(error);
-                } else {
-                    res.status(200).json(new GenericResponse(true, 'Account verified.', user));
-                }
-            });
-        }
-    });
-});
-
-router.post('/resetpassword', (req, res, next) => {
-    const validationSchema = {
+    },
+    resetPassword: {
         'email': {
             isEmail: {
               errorMessage: 'The given email address is invalid.'
             }
         }
-    };
-    req.checkBody(validationSchema);
-
-    validateRequest(req, (error) => {
-        if (error) {
-            next(error);
-        } else {
-            const email = req.body.email;
-
-            LoggedInUserService.resetPassword(email, (error, success) => {
-                if (error) {
-                    next(error);
-                } else {
-                    res.status(200).json(new GenericResponse(true, 'Reset Password Email send.', null));
-                }
-            });
-        }
-    });
-});
-
-router.post('/changepassword', (req, res, next) => {
-    const validationSchema = {
+    },
+    changePassword: {
         'rt': {
             notEmpty: true,
             errorMessage: 'Missing PasswordResetToken'
@@ -178,49 +73,100 @@ router.post('/changepassword', (req, res, next) => {
             notEmpty: true,
             errorMessage: 'Missing Password'
         }
-    };
-    req.checkBody(validationSchema);
-
-    validateRequest(req, (error) => {
-        if (error) {
-            next(error);
-        } else {
-            const rt = req.body.rt;
-            const password = req.body.password;
-
-            LoggedInUserService.changePassword(rt, password, (error, user) => {
-                if (error) {
-                    next(error);
-                } else {
-                    res.status(200).json(new GenericResponse(true, 'Password changed.', user));
-                }
-            });
-        }
-    });
-});
-
-router.post('/logout', passportJwt, (req, res, next) => {
-    const validationSchema = {
+    },
+    logout: {
         'refreshtoken': {
             notEmpty: true,
             errorMessage: 'Missing RefreshToken'
         }
-    };
-    req.checkBody(validationSchema);
+    }
+};
 
-    validateRequest(req, (error) => {
+router.post('/login', requestValidation(validationSchema.login, null, null), (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    LoggedInUserService.login(email, password, (error, user) => {
         if (error) {
             next(error);
         } else {
-            const refreshtoken = req.body.refreshtoken;
+            res.status(200).json(new GenericResponse(true, null, user));
+        }
+    });
+});
 
-            LoggedInUserService.logout(req.user, refreshtoken, (error, result) => {
-                if (error) {
-                    next(error);
-                } else {
-                    res.status(200).json(new GenericResponse(true, null, null));
-                }
-            });
+router.get('/refreshtoken', requestValidation(null, null, validationSchema.refreshToken), (req, res, next) => {
+    const token = req.query.token;
+    const userid = req.query.userid;
+
+    LoggedInUserService.getNewAuthToken(token, userid, (error, updatedTokens) => {
+        if (error) {
+            next(error);
+        } else {
+            res.status(200).json(new GenericResponse(true, null, updatedTokens));
+        }
+    });
+});
+
+router.post('/register', requestValidation(validationSchema.register, null, null), (req, res, next) => {
+    const email = req.body.email;
+    const username = req.body.username;
+    const password = req.body.password;
+
+    LoggedInUserService.register(email, username, password, (error, user) => {
+        if (error) {
+            next(error);
+        } else {
+            res.status(200).json(new GenericResponse(true, 'User successful registered', user));
+        }
+    });
+});
+
+router.post('/verifyaccount', requestValidation(validationSchema.verifyAccount, null, null), (req, res, next) => {
+    const vt = req.body.vt;
+
+    LoggedInUserService.verifyAccount(vt, (error, user) => {
+        if (error) {
+            next(error);
+        } else {
+            res.status(200).json(new GenericResponse(true, 'Account verified.', user));
+        }
+    });
+});
+
+router.post('/resetpassword', requestValidation(validationSchema.resetPassword, null, null), (req, res, next) => {
+    const email = req.body.email;
+
+    LoggedInUserService.resetPassword(email, (error, success) => {
+        if (error) {
+            next(error);
+        } else {
+            res.status(200).json(new GenericResponse(true, 'Reset Password Email send.', null));
+        }
+    });
+});
+
+router.post('/changepassword', requestValidation(validationSchema.changePassword, null, null), (req, res, next) => {
+    const rt = req.body.rt;
+    const password = req.body.password;
+
+    LoggedInUserService.changePassword(rt, password, (error, user) => {
+        if (error) {
+            next(error);
+        } else {
+            res.status(200).json(new GenericResponse(true, 'Password changed.', user));
+        }
+    });
+});
+
+router.post('/logout', passportJwt, requestValidation(validationSchema.logout, null, null), (req, res, next) => {
+    const refreshtoken = req.body.refreshtoken;
+
+    LoggedInUserService.logout(req.user, refreshtoken, (error, result) => {
+        if (error) {
+            next(error);
+        } else {
+            res.status(200).json(new GenericResponse(true, null, null));
         }
     });
 });

@@ -2,7 +2,7 @@
 
 const mongoose       = require('mongoose');
 const SchemaObjectId = mongoose.Schema.Types.ObjectId;
-const CostumError    = require('../utils/CostumError');
+const CustomError    = require('../utils/CustomError');
 const Photo          = require('./Photo');
 const async          = require('async');
 

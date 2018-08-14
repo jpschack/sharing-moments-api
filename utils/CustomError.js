@@ -1,7 +1,7 @@
 'use strict';
 
 
-class CostumError extends Error {
+class CustomError extends Error {
     constructor(type, message, errorCode) {
         super(message);
 
@@ -13,4 +13,4 @@ class CostumError extends Error {
     }
 }
 
-module.exports = CostumError;
+module.exports = CustomError;

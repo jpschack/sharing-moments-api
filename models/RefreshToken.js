@@ -5,7 +5,7 @@ const config         = require('../config/config');
 const jwt            = require('jsonwebtoken');
 const crypto         = require('crypto');
 const SchemaObjectId = mongoose.Schema.Types.ObjectId;
-const CostumError    = require('../utils/CostumError');
+const CustomError    = require('../utils/CustomError');
 
 
 const RefreshTokenSchema = mongoose.Schema({ 
@@ -24,7 +24,7 @@ RefreshTokenSchema.pre('save', function(next) {
         }
         next();
     } else {
-        next(new CostumError('UNAUTHORIZED', 'Token expired.', 401));
+        next(new CustomError('UNAUTHORIZED', 'Token expired.', 401));
     }
 });
 
@@ -90,7 +90,7 @@ RefreshTokenSchema.methods.getNewAuthToken = function(callback) {
             }
         });
     } else {
-        callback(new CostumError('UNAUTHORIZED', 'Token expired', 401), null, null);
+        callback(new CustomError('UNAUTHORIZED', 'Token expired', 401), null, null);
     }
 }
 

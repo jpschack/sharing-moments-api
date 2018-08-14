@@ -8,7 +8,7 @@ const RequestValidationError = require('../utils/RequestValidationError');
 function errorHandler(error, req, res, next) {
     if (error) {
         logger.error(error);
-        if (error.name == 'CostumError') {
+        if (error.name == 'CustomError') {
             res.status(error.errorCode).json(new GenericResponse(false, error.message, null));
         } else if (error.name == 'ValidationError') {
             const errorList = [];

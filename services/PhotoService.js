@@ -1,7 +1,7 @@
 'use strict'
 
 const async        = require('async');
-const CostumError  = require('../utils/CostumError');
+const CustomError  = require('../utils/CustomError');
 const mongoose     = require('mongoose');
 const ObjectId     = mongoose.Types.ObjectId;
 const FileService  = require('../services/FileService');
@@ -23,7 +23,7 @@ class PhotoService {
                     } else if (event) {
                         next(null, event);
                     } else {
-                        callback(new CostumError('NOT_FOUND', 'Event not found.', 404), null);
+                        callback(new CustomError('NOT_FOUND', 'Event not found.', 404), null);
                     }
                 });
             },
@@ -34,7 +34,7 @@ class PhotoService {
                     } else if (req.files) {
                         next(null, event, req.files);
                     } else {
-                        callback(new CostumError('BAD_REQUEST', 'No images found.', 400), null);
+                        callback(new CustomError('BAD_REQUEST', 'No images found.', 400), null);
                     }
                 });
             },
@@ -74,7 +74,7 @@ class PhotoService {
                     if (error) {
                         callback(error, null);
                     } else if (!photo) {
-                        callback(new CostumError('NOT_FOUND', 'Photo not found.', 404), null);
+                        callback(new CustomError('NOT_FOUND', 'Photo not found.', 404), null);
                     } else {
                         next(null, photo);
                     }
@@ -101,7 +101,7 @@ class PhotoService {
             if (error) {
                 callback(error, null);
             } else if (!photo) {
-                callback(new CostumError('NOT_FOUND', 'Photo not found.', 404), null);
+                callback(new CustomError('NOT_FOUND', 'Photo not found.', 404), null);
             } else {
                 callback(null, photo);
             }
@@ -145,7 +145,7 @@ class PhotoService {
                     if (error) {
                         callback(error, null);
                     } else if (!photo) {
-                        callback(new CostumError('NOT_FOUND', 'Photo not found.', 404), null);
+                        callback(new CustomError('NOT_FOUND', 'Photo not found.', 404), null);
                     } else {
                         next(null, photo);
                     }

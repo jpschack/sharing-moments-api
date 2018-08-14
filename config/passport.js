@@ -1,6 +1,6 @@
 'use strict';
 
-const CostumError         = require('../utils/CostumError');
+const CustomError         = require('../utils/CustomError');
 const passport            = require('passport');
 const passportJWTStrategy = require('passport-jwt').Strategy;
 const FacebookStrategy    = require('passport-facebook').Strategy;
@@ -15,12 +15,12 @@ module.exports = (app) => {
     passport.use(
         new passportJWTStrategy(config.jwt.passportJWT, (jwt_payload, next) => {
             if (!jwt_payload || !jwt_payload.exp || !jwt_payload.id) {
-                next(new CostumError('UNAUTHORIZED', 'Token invalid.', 401), false);
+                next(new CustomError('UNAUTHORIZED', 'Token invalid.', 401), false);
             } else {
                 const exp = jwt_payload.exp;
                 const currentTime = Date.now() / 1000;
                 if (exp < currentTime) {
-                    next(new CostumError('UNAUTHORIZED', 'Token expired.', 401), false);
+                    next(new CustomError('UNAUTHORIZED', 'Token expired.', 401), false);
                 } else {
                     const userid = ObjectId(jwt_payload.id);
                     LoggedInUser.findById(userid).select('+password').exec((error, user) => {
@@ -29,7 +29,7 @@ module.exports = (app) => {
                         } else if (user) {
                             next(null, user);
                         } else {
-                            next(new CostumError('UNAUTHORIZED', 'Associated user not found.', 401), false);
+                            next(new CustomError('UNAUTHORIZED', 'Associated user not found.', 401), false);
                         }
                     });
                 }
@@ -73,7 +73,7 @@ module.exports = (app) => {
                         }
                     });
                 } else {
-                    next(new CostumError('FB_LOGIN_ERROR', 'Unexpected error while login to fb. Did not receive all needed information.', 500), null);
+                    next(new CustomError('FB_LOGIN_ERROR', 'Unexpected error while login to fb. Did not receive all needed information.', 500), null);
                 }
             }
         )

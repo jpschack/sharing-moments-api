@@ -1,7 +1,7 @@
 'use strict'
 
 const async       = require('async');
-const CostumError = require('../utils/CostumError');
+const CustomError = require('../utils/CustomError');
 const mongoose    = require('mongoose');
 const ObjectId    = mongoose.Types.ObjectId;
 const User        = require('../models/User');
@@ -15,7 +15,7 @@ class UserService {
             } else if (user) {
                 callback(null, user);
             } else {
-                callback(new CostumError('NOT_FOUND', 'User not found.', 404), null);
+                callback(new CustomError('NOT_FOUND', 'User not found.', 404), null);
             }
         });
     }
@@ -27,7 +27,7 @@ class UserService {
             } else if (user) {
                 callback(null, user);
             } else {
-                callback(new CostumError('NOT_FOUND', 'User not found.', 404), null);
+                callback(new CustomError('NOT_FOUND', 'User not found.', 404), null);
             }
         });
     }

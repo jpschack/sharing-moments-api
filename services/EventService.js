@@ -1,7 +1,7 @@
 'use strict'
 
 const async       = require('async');
-const CostumError = require('../utils/CostumError');
+const CustomError = require('../utils/CustomError');
 const mongoose    = require('mongoose');
 const ObjectId    = mongoose.Types.ObjectId;
 const Event       = require('../models/Event');
@@ -45,10 +45,10 @@ class EventService {
                         if (event.user.equals(user._id)) {
                             next(null, event);
                         } else {
-                            callback(new CostumError('FORBIDDEN', 'This user does not have the necessary permissions to change this event.', 403), null);
+                            callback(new CustomError('FORBIDDEN', 'This user does not have the necessary permissions to change this event.', 403), null);
                         }
                     } else {
-                        callback(new CostumError('NOT_FOUND', 'Event not found.', 404), null);
+                        callback(new CustomError('NOT_FOUND', 'Event not found.', 404), null);
                     }
                 });
             },
@@ -95,7 +95,7 @@ class EventService {
             } else if (event) {
                 callback(null, event);
             } else {
-                callback(new CostumError('NOT_FOUND', 'Event not found.', 404), null);
+                callback(new CustomError('NOT_FOUND', 'Event not found.', 404), null);
             }
         });
     }
@@ -114,7 +114,7 @@ class EventService {
                         }
                     });
                 } else {
-                    callback(new CostumError('FORBIDDEN', 'You do not have the permissions to delete this event.', 403), null);
+                    callback(new CustomError('FORBIDDEN', 'You do not have the permissions to delete this event.', 403), null);
                 }
             }
         });

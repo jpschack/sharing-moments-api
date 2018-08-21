@@ -5,7 +5,7 @@ const env         = process.env.NODE_ENV || 'development';
 
 const ExtractJwt            = passportJWT.ExtractJwt;
 const jwtOptions            = {};
-jwtOptions.jwtFromRequest   = ExtractJwt.fromAuthHeader();
+jwtOptions.jwtFromRequest   = ExtractJwt.fromAuthHeaderWithScheme('jwt');
 jwtOptions.secretOrKey      = '';
 jwtOptions.ignoreExpiration = true;
 
@@ -16,7 +16,7 @@ const config = {
     db: {
         url: 'mongodb://',
         options: {
-            useMongoClient: true
+            useNewUrlParser: true
         }
     },
     fb: {

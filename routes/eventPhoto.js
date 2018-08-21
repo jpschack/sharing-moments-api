@@ -1,43 +1,21 @@
 'use strict';
 
-const express         = require('express');
-const router          = express.Router();
-const passportJwt     = require('../config/passportJwt');
-const validateRequest = require('../config/validateRequest');
-const GenericResponse = require('../utils/GenericResponse');
-const PhotoService    = require('../services/PhotoService');
+const express           = require('express');
+const router            = express.Router();
+const passportJwt       = require('../middleware/passportJwt');
+const requestValidation = require('../middleware/requestValidation');
+const GenericResponse   = require('../utils/GenericResponse');
+const PhotoService      = require('../services/PhotoService');
 
-
-const eventParamValidationSchema = {
-    'id': {
-        isObjectIdValid: {
-            errorMessage: 'Invalid eventid'
+const validationSchema = {
+    eventParam: {
+        'id': {
+            isObjectIdValid: {
+                errorMessage: 'Invalid eventid'
+            }
         }
-    }
-};
-
-router.post('/:id/photo', passportJwt, (req, res, next) => {
-    req.checkParams(eventParamValidationSchema);
-
-    validateRequest(req, (error) => {
-        if (error) {
-            next(error);
-        } else {
-            const eventid = req.params.id;
-
-            PhotoService.upload(req, res, eventid, (error, photos) => {
-                if (error) {
-                    next(error);
-                } else {
-                    res.status(200).json(new GenericResponse(true, null, photos));
-                }
-            });
-        }
-    });
-});
-
-router.get('/:id/photo', passportJwt, (req, res, next) => {
-    const validationSchema = {
+    },
+    eventPhotoQuery: {
         'limit': {
             optional: true,
             isInt: {
@@ -59,40 +37,44 @@ router.get('/:id/photo', passportJwt, (req, res, next) => {
                 errorMessage: 'Must be asc or desc'
             }
         }
-    };
+    }
+};
 
-    req.checkParams(eventParamValidationSchema);
-    req.checkQuery(validationSchema);
+router.post('/:id/photo', passportJwt, requestValidation(null, validationSchema.eventParam, null), (req, res, next) => {
+    const eventId = req.params.id;
 
-    validateRequest(req, (error) => {
+    PhotoService.upload(req, res, eventId, (error, photos) => {
         if (error) {
             next(error);
         } else {
-            const eventid = req.params.id;
+            res.status(200).json(new GenericResponse(true, null, photos));
+        }
+    });
+});
 
-            let limit = 20;
-            let page  = 0;
-            let sort  = 'asc';
+router.get('/:id/photo', passportJwt, requestValidation(null, validationSchema.eventParam, validationSchema.eventPhotoQuery), (req, res, next) => {
+    const eventId = req.params.id;
+    let limit = 20;
+    let page  = 0;
+    let sort  = 'asc';
 
-            if (req.query.limit) {
-                limit = req.query.limit;
-            }
+    if (req.query.limit) {
+        limit = req.query.limit;
+    }
 
-            if (req.query.page) {
-                page = req.query.page;
-            }
+    if (req.query.page) {
+        page = req.query.page;
+    }
 
-            if (req.query.sort) {
-                sort = req.query.sort;
-            }
+    if (req.query.sort) {
+        sort = req.query.sort;
+    }
 
-            PhotoService.getPhotosByEventid(eventid, limit, page, sort, (error, photos) => {
-                if (error) {
-                    next(error);
-                } else {
-                    res.status(200).json(new GenericResponse(true, null, photos));
-                }
-            });
+    PhotoService.getPhotosByEventid(eventId, limit, page, sort, (error, photos) => {
+        if (error) {
+            next(error);
+        } else {
+            res.status(200).json(new GenericResponse(true, null, photos));
         }
     });
 });

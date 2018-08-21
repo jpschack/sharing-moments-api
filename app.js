@@ -8,16 +8,17 @@ require('./config/db')();
 
 const app = express();
 
-require('./config/passport')(app);
+require('./middleware/passport')(app);
 
-require('./config/express')(app);
+require('./middleware/express')(app);
 
 require('./config/routes')(app);
 
-require('./config/errorHandler')(app);
+require('./middleware/errorHandler')(app);
 
 app.listen(config.port, () => {
     logger.info('Express running');
+    logger.error('test');
 });
 
 module.exports = app;

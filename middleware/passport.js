@@ -8,7 +8,7 @@ const LoggedInUser        = require('../models/LoggedInUser');
 const mongoose            = require('mongoose');
 const ObjectId            = mongoose.Types.ObjectId;
 const logger              = require('../utils/logger');
-const config              = require('./config');
+const config              = require('../config/config');
 
 
 module.exports = (app) => {
